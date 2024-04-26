@@ -72,3 +72,4 @@ C:\Users\belde\OneDrive\Desktop\SGBD\Lab3\bin\Debug\net8.0-windows\runtimes\win\
 C:\Users\belde\OneDrive\Desktop\SGBD\Lab3\bin\Debug\net8.0-windows\runtimes\win\lib\net8.0\System.Runtime.Caching.dll
 C:\Users\belde\OneDrive\Desktop\SGBD\Lab3\obj\Debug\net8.0-windows\Lab3.csproj.Up2Date
 C:\Users\belde\OneDrive\Desktop\SGBD\Lab3\obj\Debug\net8.0-windows\Lab3.Properties.Resources.resources
+C:\Users\belde\OneDrive\Desktop\SGBD\Lab3\obj\Debug\net8.0-windows\Lab3.sourcelink.json

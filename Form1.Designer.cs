@@ -38,6 +38,7 @@
             label1 = new Label();
             listBox1 = new ListBox();
             button4 = new Button();
+            button5 = new Button();
             ((System.ComponentModel.ISupportInitialize)bindingSource1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewParent).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dataGridViewChild).BeginInit();
@@ -130,14 +131,24 @@
             button4.TabIndex = 7;
             button4.Text = "DeadLockSim";
             button4.UseVisualStyleBackColor = false;
-            //button4.Click += button4_Click;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
-
+            button4.Click += button4_Click;
+            // 
+            // button5
+            // 
+            button5.BackColor = SystemColors.ActiveBorder;
+            button5.Location = new Point(1373, 990);
+            button5.Name = "button5";
+            button5.Size = new Size(119, 53);
+            button5.TabIndex = 8;
+            button5.Text = "Refresh";
+            button5.UseVisualStyleBackColor = false;
+            button5.Click += button5_Click;
             // 
             // Form1
             // 
             BackColor = SystemColors.ActiveCaption;
             ClientSize = new Size(1904, 1234);
+            Controls.Add(button5);
             Controls.Add(button4);
             Controls.Add(listBox1);
             Controls.Add(label1);
@@ -165,5 +176,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ListBox listBox1;
         private Button button4;
+        private Button button5;
     }
 }

@@ -314,13 +314,12 @@ namespace Lab3
         {
             if (selectedTable == "Clienti" && dataGridViewParent.CurrentRow != null)
             {
-                int clientId1 = (int)dataGridViewParent.CurrentRow.Cells[0].Value;
-                int clientId2 = clientId1 + 1; // Assuming the IDs are sequential
+                int clientId = (int)dataGridViewParent.CurrentRow.Cells[0].Value;
 
                 // Start the deadlock simulation in a separate thread
                 ThreadPool.QueueUserWorkItem(new WaitCallback((state) =>
                 {
-                    SimulateDeadlock(clientId1, clientId2);
+                    SimulateDeadlock(clientId);
                 }));
             }
             else
@@ -331,40 +330,116 @@ namespace Lab3
 
 
 
-
-        private void ExecuteDatabaseOperations(string queryType, int clientId1, int clientId2)
+        /*
+        private void ExecuteDatabaseOperations(string firstName, int clientId, int timeout = -1)
         {
             try
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
                     connection.Open();
+                    SqlCommand command = connection.CreateCommand();
+
+                    if (timeout >= 0)
+                    {
+                        command.CommandTimeout = timeout; // Setting the SQL command timeout
+                        command.CommandText = "SET LOCK_TIMEOUT " + timeout;
+                        command.ExecuteNonQuery();
+                    }
+
                     using (SqlTransaction transaction = connection.BeginTransaction())
                     {
-                        SqlCommand command = connection.CreateCommand();
                         command.Transaction = transaction;
+                        command.CommandText = $"UPDATE Clienti WITH (TABLOCKX) SET nume = @firstName WHERE id = @clientId";
+                        command.Parameters.Clear();
+                        command.Parameters.AddWithValue("@firstName", firstName);
+                        command.Parameters.AddWithValue("@clientId", clientId);
 
-                        if (queryType == "UpdateFirstName")
-                        {
-                            command.CommandText = $"UPDATE Clienti SET nume = 'John' WHERE id = @clientId1";
-                            command.Parameters.AddWithValue("@clientId1", clientId1);
-                            command.ExecuteNonQuery();
-                            Thread.Sleep(500); // Sleep to simulate delay for deadlock scenario
-                            command.CommandText = $"UPDATE Clienti SET nume = 'Doe' WHERE id = @clientId2";
-                            command.Parameters.AddWithValue("@clientId2", clientId2); // Use different parameter name
-                            command.ExecuteNonQuery();
-                        }
-                        else if (queryType == "UpdateLastName")
-                        {
-                            command.CommandText = $"UPDATE Clienti SET nume = 'Doe' WHERE id = @clientId1";
-                            command.Parameters.AddWithValue("@clientId1", clientId1);
-                            command.ExecuteNonQuery();
-                            Thread.Sleep(500); // Sleep to simulate delay for deadlock scenario
-                            command.CommandText = $"UPDATE Clienti SET nume = 'John' WHERE id = @clientId2";
-                            command.Parameters.AddWithValue("@clientId2", clientId2); // Use different parameter name
-                            command.ExecuteNonQuery();
-                        }
+                        command.ExecuteNonQuery();
+                        transaction.Commit();
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 1205) // Deadlock
+                {
+                    Log("Deadlock encountered, retrying...");
+                }
+                else
+                {
+                    Log($"SQL Error: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"Error: {ex.Message}");
+            }
+        }
+        */
+        private void ExecuteDatabaseOperations1(string firstName, int clientId)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    SqlCommand command = connection.CreateCommand();
 
+                    using (SqlTransaction transaction = connection.BeginTransaction())
+                    {
+                        command.Transaction = transaction;
+                        command.CommandText = $"UPDATE Clienti WITH (TABLOCKX) SET nume = @firstName WHERE id = @clientId";
+                        command.Parameters.Clear();
+                        command.Parameters.AddWithValue("@firstName", firstName);
+                        command.Parameters.AddWithValue("@clientId", clientId);
+
+                        command.ExecuteNonQuery();
+
+                        Thread.Sleep(1000); // Simulate a delay
+                        transaction.Commit();
+                        
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number == 1205) // Deadlock
+                {
+                    Log("Deadlock encountered, retrying...");
+                }
+                else
+                {
+                    Log($"SQL Error: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"Error: {ex.Message}");
+            }
+        }
+
+        private void ExecuteDatabaseOperations2(string firstName, int clientId)
+        {
+            Thread.Sleep(500);
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    SqlCommand command = connection.CreateCommand();
+
+                    using (SqlTransaction transaction = connection.BeginTransaction())
+                    {
+                        command.Transaction = transaction;
+                        command.CommandText = $"UPDATE Clienti SET nume = @firstName WHERE id = @clientId";
+                        command.Parameters.Clear();
+                        command.Parameters.AddWithValue("@firstName", firstName);
+                        command.Parameters.AddWithValue("@clientId", clientId);
+
+                        command.ExecuteNonQuery();
+
+                    
                         transaction.Commit();
                     }
                 }
@@ -386,19 +461,17 @@ namespace Lab3
             }
         }
 
-
-
-
         //Method to simulate deadlock scenario
-        public void SimulateDeadlock(int clientId1, int clientId2)
+        public void SimulateDeadlock(int clientId)
         {
-            // Execute two database operations in parallel with potential for deadlock
-            Thread thread1 = new Thread(() => ExecuteDatabaseOperations("UpdateFirstName", clientId1, clientId2));
-            Thread thread2 = new Thread(() => ExecuteDatabaseOperations("UpdateLastName", clientId1, clientId2));
+            Thread thread1 = new Thread(() => ExecuteDatabaseOperations1("Simon", clientId));
+            Thread thread2 = new Thread(() => ExecuteDatabaseOperations2("Stefi", clientId)); 
+
             thread1.Start();
             thread2.Start();
 
-            // Wait for both threads to finish
+            
+
             thread1.Join();
             thread2.Join();
         }
@@ -419,5 +492,22 @@ namespace Lab3
                 MessageBox.Show($"Failed to write to log file: {ex.Message}");
             }
         }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (listBox1.SelectedItem != null)
+            {
+                selectedTable = listBox1.SelectedItem.ToString();
+                RefreshData(selectedTable);
+                MessageBox.Show("Data refreshed successfully!");
+            }
+            else
+            {
+                MessageBox.Show("Please select a table from the list before refreshing.");
+            }
+        }
+
+      
+
     }
 }
