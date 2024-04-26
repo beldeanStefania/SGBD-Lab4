@@ -1,0 +1,44 @@
+﻿<Configuration>
+	<Database>
+		<ConnectionString>Server=LAPTOP-CQ0JJ9N9; Database=LabSGBD; Integrated Security=true; TrustServerCertificate=true;</ConnectionString>
+	</Database>
+	<Tables>
+		<Table name="Clienti" />
+		<Table name="Comenzi" />
+		<Table name="Tara" />
+		<Table name="Companie" />
+	</Tables>
+	<Queries>
+		<Query table="Clienti" operation="select" command="SELECT * FROM Clienti" />
+		<Query table="Clienti" operation="insert" command="INSERT INTO Clienti (nume, prenume, email) VALUES (@nume, @prenume, @email)" />
+		<Query table="Clienti" operation="update" command="UPDATE Clienti SET nume = @nume, prenume = @prenume, email = @email WHERE id = @id" />
+		<Query table="Clienti" operation="delete" command="DELETE FROM Clienti WHERE id = @id" />
+
+		<Query table="Comenzi" operation="select" command="SELECT * FROM Comenzi" />
+		<Query table="Comenzi" operation="insert" command="INSERT INTO Comenzi (idClient, dataComanda, detaliiComanda) VALUES (@idClient, @dataComanda, @detaliiComanda)" />
+		<Query table="Comenzi" operation="update" command="UPDATE Comenzi SET idClient = @idClient, dataComanda = @dataComanda, detaliiComanda = @detaliiComanda WHERE id = @id" />
+		<Query table="Comenzi" operation="delete" command="DELETE FROM Comenzi WHERE id = @id" />
+
+
+		<Query table="Tara" operation="select" command="SELECT * FROM Tara" />
+		<Query table="Tara" operation="insert" command="INSERT INTO Tara (denumire, populatie, capitala) VALUES (@denumire, @populatie, @capitala)" />
+		<Query table="Tara" operation="update" command="UPDATE Tara SET populatie = @populatie, capitala = @capitala WHERE id = @id" />
+		<Query table="Tara" operation="delete" command="DELETE FROM Tara WHERE id = @id" />
+
+		<Query table="Companie" operation="select" command="SELECT * FROM Companie" />
+		<Query table="Companie" operation="insert" command="INSERT INTO Companie (nume, industrie, capital, idTara) VALUES (@nume, @industrie, @capital, @idTara)" />
+		<Query table="Companie" operation="update" command="UPDATE Companie SET nume = @nume, industrie = @industrie, capital = @capital, idTara = @idTara WHERE id = @id" />
+		<Query table="Companie" operation="delete" command="DELETE FROM Companie WHERE id = @id" />
+	</Queries>
+	<Relationships>
+		<Relationship parentTable="Clienti"
+                      childTable="Comenzi"
+                      parentPrimaryKey="id"
+                      childForeignKey="idClient" />\
+
+		<Relationship parentTable="Tara"
+					  childTable="Companie"
+					  parentPrimaryKey="id"
+					  childForeignKey="idTara" />
+	</Relationships>
+</Configuration>
